@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Loan Application{% endblock %}
+
+{% block content %}
+<div class="card animate-in">
+    <div class="card-header">
+        <i class="fas fa-file-alt"></i> Loan Application
+    </div>
+    <form method="POST" action="/submit">
+        <div class="form-group">
+            <label>Full Name:</label>
+            <input type="text" name="name" required placeholder="Enter your full name">
+        </div>
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" name="email" required placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+            <label>Loan Amount ($):</label>
+            <input type="number" name="amount" required min="1" placeholder="Enter loan amount">
+        </div>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-paper-plane"></i> Submit Application
+        </button>
+    </form>
+</div>
+
+<div class="card animate-in" style="animation-delay: 0.2s;">
+    <div class="card-header">
+        <i class="fas fa-chart-line"></i> Application Statistics
+    </div>
+    <div class="chart-container">
+        <canvas id="statsChart"></canvas>
+    </div>
+</div>
+
+<script>
+    const ctx = document.getElementById('statsChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Approved', 'In Progress', 'New', 'Rejected'],
+            datasets: [{
+                data: [35, 25, 30, 10],
+                backgroundColor: [
+                    '#27ae60',
+                    '#f39c12',
+                    '#3498db',
+                    '#e74c3c'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: {
+                            family: "'Raleway', sans-serif",
+                            size: 14
+                        }
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Application Status Distribution',
+                    font: {
+                        family: "'Montserrat', sans-serif",
+                        size: 16,
+                        weight: '500'
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
