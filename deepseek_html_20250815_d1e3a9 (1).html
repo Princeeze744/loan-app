@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Application #{{ application.id }}{% endblock %}
+
+{% block content %}
+<div class="card animate-in">
+    <div class="card-header">
+        <i class="fas fa-file-invoice"></i> Application #{{ application.id }}
+    </div>
+    
+    <div class="d-flex justify-content-between mb-4">
+        <div>
+            <h3 class="mb-1">{{ application.applicant_name }}</h3>
+            <p class="mb-1"><strong>Email:</strong> {{ application.email }}</p>
+            <p class="mb-1"><strong>Loan Amount:</strong> ${{ "{:,.2f}".format(application.loan_amount) }}</p>
+            <p>
+                <strong>Status:</strong> 
+                <span class="status-badge status-{{ application.status|lower|replace(' ','-') }}">
+                    {{ application.status }}
+                </span>
+            </p>
+        </div>
+        <div class="text-right">
+            <p><strong>Created:</strong> {{ application.created_at.strftime('%b %d, %Y') }}</p>
+            <div>
+                <a href="/update_status/{{ application.id }}/In Progress" class="btn btn-sm btn-warning">
+                    <i class="fas fa-sync-alt"></i> Progress
+                </a>
+                <a href="/update_status/{{ application.id }}/Approved" class="btn btn-sm btn-success">
+                    <i class="fas fa-check"></i> Approve
+                </a>
+                <a href="/update_status/{{ application.id }}/Rejected" class="btn btn-sm btn-danger">
+                    <i class="fas fa-times"></i> Reject
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card animate-in" style="animation-delay: 0.2s;">
+            <div class="card-header">
+                <i class="fas fa-tasks"></i> Application Tasks
+            </div>
+            
+            <div class="task-list">
+                {% for task in application.tasks %}
+                <div class="task-item {% if task.completed %}task-completed{% endif %}">
+                    <div class="task-check">
+                        {% if task.completed %}
+                        <i class="fas fa-check-circle text-success"></i>
+                        {% else %}
+                        <a href="/complete_task/{{ task.id }}" class="text-muted">
+                            <i class="far fa-circle"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <div class="task-name">{{ task.name }}</div>
+                        <div class="task-due text-muted">
+                            <small>
+                                <i class="far fa-calendar"></i> 
+                                Due: {{ task.due_date.strftime('%b %d, %Y') }}
+                                {% if task.completed %}
+                                | <span class="text-success">Completed</span>
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-center py-3">No tasks created for this application</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card animate-in" style="animation-delay: 0.3s;">
+            <div class="card-header">
+                <i class="fas fa-file-upload"></i> Upload Document
+            </div>
+            
+            <div class="p-3">
+                <form action="/upload/{{ application.id }}" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Select Document</label>
+                        <input type="file" name="document" required class="form-control-file">
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select name="category" required class="form-control">
+                            <option value="">Select Category</option>
+                            <option value="ID Proof">ID Proof</option>
+                            <option value="Income Statement">Income Statement</option>
+                            <option value="Bank Statement">Bank Statement</option>
+                            <option value="Property Documents">Property Documents</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-upload"></i> Upload Document
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card animate-in" style="animation-delay: 0.4s;">
+    <div class="card-header">
+        <i class="fas fa-folder-open"></i> Document Center
+    </div>
+    
+    {% if application.documents %}
+    <div class="document-list">
+        {% for doc in application.documents %}
+        <div class="document-card">
+            <div>
+                <h4>{{ doc.filename }}</h4>
+                <p class="mb-0">
+                    <span class="badge bg-light text-dark">{{ doc.category }}</span>
+                    <span class="text-muted">Uploaded: {{ doc.uploaded_at.strftime('%b %d, %Y %I:%M %p') }}</span>
+                </p>
+            </div>
+            <div>
+                {% if doc.signed %}
+                <span class="badge bg-success me-2">
+                    <i class="fas fa-signature"></i> Signed
+                </span>
+                {% else %}
+                <a href="/sign_document/{{ doc.id }}" class="btn btn-sm btn-success me-2">
+                    <i class="fas fa-signature"></i> Sign
+                </a>
+                {% endif %}
+                <a href="/documents/{{ doc.filename }}" target="_blank" class="btn btn-sm btn-primary">
+                    <i class="fas fa-download"></i> Download
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-4">
+        <i class="fas fa-file-excel fa-3x text-muted mb-3"></i>
+        <h4>No documents uploaded</h4>
+        <p>Upload your first document using the form above</p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="d-flex justify-content-between mt-4">
+    <a href="/dashboard" class="btn btn-light">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+    
+    <div>
+        <a href="#" class="btn btn-info">
+            <i class="fas fa-envelope"></i> Send Update
+        </a>
+        <a href="#" class="btn btn-secondary">
+            <i class="fas fa-print"></i> Print Summary
+        </a>
+    </div>
+</div>
+{% endblock %}
